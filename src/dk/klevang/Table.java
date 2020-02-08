@@ -8,6 +8,7 @@ public class Table
     private ArrayList<Column> columnList;
     private String createString;
     private String primaryKey = null;
+    private String foreignKey = null;
 
     // private constructor, so we only can use Builder
     private Table()
@@ -22,13 +23,15 @@ public class Table
                 "\n" +
                 ");";
 
+        //inserting the table name into the $table_name placeholder
         printString = printString.replace("$table_name", this.tableName);
 
+        //run every column through, and add it to the creation String
         for (int index = 0; index < columnList.size() - 1; index++)
         {
-            //replaces $column with column details (name and type), and appends a new $column
             Column currentColumn = columnList.get(index);
 
+            //elements from the column are taken out of the object. If a property, such as NOT NULL is selected, a space is added to the "columnType" String.
             String columnName = currentColumn.getName() + " ";
             String columnType = (currentColumn.getProperty().length() == 0 ? currentColumn.getType() : currentColumn.getType() + " ");
             String columnProperty = currentColumn.getProperty();
@@ -39,19 +42,38 @@ public class Table
 
         // if a primary key is set, the last column is inserted, and a placeholder "PRIMARY KEY($key)" is inserted, which is then replaced by the actual key.
         // is no primary key is set, the last column is inserted in the place of "$column"
-        Column lastColumn = columnList.get(columnList.size()-1);
+        Column lastColumn = columnList.get(columnList.size() - 1);
         if (primaryKeyExists())
         {
-            printString = printString.replace("$column", lastColumn.getName() + " " + lastColumn.getType() + ",\n\tPRIMARY KEY ($key)");
-            printString = printString.replace("$key", this.primaryKey);
+            if (foreignKeyExists())
+            {   // both primary and foreign keys exists
+                printString = printString.replace("$column", lastColumn.getName() + " " + lastColumn.getType() + ",\n\t$p_key,\n\t$f_key");
+                printString = printString.replace("$p_key", this.primaryKey);
+                printString = printString.replace("$f_key", this.foreignKey);
+            }
+            else
+            {
+                // just primary key exists
+                printString = printString.replace("$column", lastColumn.getName() + " " + lastColumn.getType() + ",\n\t$p_key");
+                printString = printString.replace("$p_key", this.primaryKey);
+            }
+        }
+        if (foreignKeyExists())
+        {   // just foreign exists
+            printString = printString.replace("$column", lastColumn.getName() + " " + lastColumn.getType() + ",\n\t$f_key");
+            printString = printString.replace("$f_key", this.foreignKey);
         }
         else
-        {
+        {   // no keys exist
             printString = printString.replace("$column", lastColumn.getName() + " " + lastColumn.getType());
         }
 
-
         this.createString = printString;
+    }
+
+    private boolean foreignKeyExists()
+    {
+        return this.foreignKey != null;
     }
 
     private boolean primaryKeyExists()
@@ -65,12 +87,12 @@ public class Table
     }
 
 
-
     public static class Builder
     {
         private String tableName;
         private ArrayList<Column> columnList;
         private String primaryKey = null;
+        private String foreignKey = null;
 
         public Builder(String tableName)
         {
@@ -90,6 +112,21 @@ public class Table
             return this;
         }
 
+        public Builder asPrimaryKey()
+        {
+            Column lastInsertedColumn = columnList.get(columnList.size() - 1);
+            this.primaryKey = "PRIMARY KEY (" + lastInsertedColumn.getName() + ")";
+            return this;
+        }
+
+        public Builder asForeignKey(String refTable, String refColumn)
+        {
+            //      FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
+            Column lastInsertedColumn = columnList.get(columnList.size() - 1);
+            this.foreignKey = "FOREIGN KEY (" + lastInsertedColumn.getName() + ") REFERENCES " + refTable + "(" + refColumn + ")";
+            return this;
+        }
+
         public Builder withPrimaryKey(String columnName)
         {
             this.primaryKey = columnName;
@@ -102,6 +139,7 @@ public class Table
             table.columnList = this.columnList;
             table.tableName = this.tableName;
             table.primaryKey = this.primaryKey;
+            table.foreignKey = this.foreignKey;
             table.makeCreateString();
 
             return table;
