@@ -23,7 +23,7 @@ public class Main
         Table orderTable = new Table.Builder("Orders")
                 .withColumn("Name", ColumnType.VAR_CHAR(255))
                 .withColumn("OrderID", ColumnType.INT()).asPrimaryKey()
-                .withColumn("PersonID", ColumnType.INT()).asForeignKey("Persons", "PersonID")
+                .withColumn("PersonID", ColumnType.INT()).asForeignKeyWith("Persons", "PersonID")
                 .build();
 
         System.out.println(orderTable.getCreateString() + "\n");
@@ -31,7 +31,7 @@ public class Main
         //creates a table with only a Foreign key
         Table orderAmounts = new Table.Builder("OrderAmounts")
                 .withColumn("Amount", ColumnType.FLOAT(10))
-                .withColumn("OrderID", ColumnType.INT()).asForeignKey("Orders", "OrderID")
+                .withColumn("OrderID", ColumnType.INT()).asForeignKeyWith("Orders", "OrderID")
                 .build();
 
         System.out.println(orderAmounts.getCreateString() + "\n");
