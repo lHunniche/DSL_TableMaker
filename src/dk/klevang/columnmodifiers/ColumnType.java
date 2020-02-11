@@ -36,12 +36,12 @@ public class ColumnType
         return VAR_BINARY.replace("$size", size + "");
     }
 
-    public static String TINY_BLOB(int size)
+    public static String BLOB_TINY(int size)
     {
         return TINY_BLOB;
     }
 
-    public static String TINY_TEXT(int size)
+    public static String TEXT_TINY(int size)
     {
         return TINY_TEXT;
     }
@@ -56,22 +56,22 @@ public class ColumnType
         return BLOB.replace("$size", size + "");
     }
 
-    public static String MEDIUM_TEXT()
+    public static String TEXT_MEDIUM()
     {
         return MEDIUM_TEXT;
     }
 
-    public static String MEDIUM_BLOB()
+    public static String BLOB_MEDIUM()
     {
         return MEDIUM_BLOB;
     }
 
-    public static String LONG_TEXT()
+    public static String TEXT_LONG()
     {
         return LONG_TEXT;
     }
 
-    public static String LONG_BLOB()
+    public static String BLOB_LONG()
     {
         return LONG_BLOB;
     }
@@ -81,7 +81,7 @@ public class ColumnType
         return BIT.replace("$size", size + "");
     }
 
-    public static String TINY_INT(int size)
+    public static String INT_TINY(int size)
     {
         return TINY_INT.replace("$size", size + "");
     }
@@ -91,17 +91,17 @@ public class ColumnType
         return BOOLEAN;
     }
 
-    public static String SMALL_INT(int size)
+    public static String INT_SMALL(int size)
     {
         return SMALL_INT.replace("$size", size + "");
     }
 
-    public static String MEDIUM_INT(int size)
+    public static String INT_MEDIUM(int size)
     {
         return MEDIUM_INT.replace("$size", size + "");
     }
 
-    public static String BIG_INT(int size)
+    public static String INT_BIG(int size)
     {
         return BIG_INT.replace("$size", size + "");
     }
