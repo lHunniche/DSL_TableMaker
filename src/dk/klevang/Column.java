@@ -1,6 +1,6 @@
 package dk.klevang;
 
-public class Column
+class Column
 {
     private String name;
     private String type;
@@ -20,17 +20,17 @@ public class Column
         this.property = property;
     }
 
-    public String getName()
+    String getName()
     {
         return name;
     }
 
-    public String getType()
+    String getType()
     {
         return this.type;
     }
 
-    public String getProperty()
+    String getProperty()
     {
         return property;
     }
