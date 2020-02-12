@@ -33,8 +33,8 @@ public class Table
 
             //elements from the column are taken out of the object. If a property, such as NOT NULL is selected, a space is added to the "columnType" String.
             String columnName = currentColumn.getName() + " ";
-            String columnType = (currentColumn.getProperty().length() == 0 ? currentColumn.getType() : currentColumn.getType() + " ");
-            String columnProperty = currentColumn.getProperty();
+            String columnType = (currentColumn.getProperty() == null ? currentColumn.getType() : currentColumn.getType() + " ");
+            String columnProperty = currentColumn.getPropertiesAsString();
 
             //printString = printString.replace("$column", columnList.get(index).getName() + " " + columnList.get(index).getType() + ",\n\t$column");
             printString = printString.replace("$column", columnName + columnType + columnProperty + ",\n\t$column");
@@ -106,7 +106,7 @@ public class Table
             return this;
         }
 
-        public Builder withColumn(String columnName, String columnType, String columnProperty)
+        public Builder withColumn(String columnName, String columnType, String... columnProperty)
         {
             columnList.add(new Column(columnName, columnType, columnProperty));
             return this;
@@ -124,12 +124,6 @@ public class Table
             //      FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
             Column lastInsertedColumn = columnList.get(columnList.size() - 1);
             this.foreignKey = "FOREIGN KEY (" + lastInsertedColumn.getName() + ") REFERENCES " + refTable + "(" + refColumn + ")";
-            return this;
-        }
-
-        public Builder withPrimaryKey(String columnName)
-        {
-            this.primaryKey = columnName;
             return this;
         }
 

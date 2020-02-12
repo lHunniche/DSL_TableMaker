@@ -4,16 +4,16 @@ class Column
 {
     private String name;
     private String type;
-    private String property;
+    private String[] property;
 
     Column(String name, String type)
     {
         this.name = name;
         this.type = type;
-        this.property = "";
+        this.property = null;
     }
 
-    Column(String name, String type, String property)
+    Column(String name, String type, String[] property)
     {
         this.name = name;
         this.type = type;
@@ -30,9 +30,22 @@ class Column
         return this.type;
     }
 
-    String getProperty()
+    String[] getProperty()
     {
         return property;
+    }
+
+    String getPropertiesAsString()
+    {
+        if (this.property == null) return "";
+        StringBuilder builder = new StringBuilder();
+        for (String s : this.property)
+        {
+            builder.append(s);
+            builder.append(" ");
+        }
+
+        return builder.toString().trim();
     }
 
 
