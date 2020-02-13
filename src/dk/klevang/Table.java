@@ -121,7 +121,6 @@ public class Table
 
         public Builder asForeignKeyWith(String refTable, String refColumn)
         {
-            //      FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
             Column lastInsertedColumn = columnList.get(columnList.size() - 1);
             this.foreignKey = "FOREIGN KEY (" + lastInsertedColumn.getName() + ") REFERENCES " + refTable + "(" + refColumn + ")";
             return this;

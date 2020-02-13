@@ -11,7 +11,7 @@ public class Main
         // Creates a table with a column property (NOT NULL) and Primary key
         Table table = new Table.Builder("Persons")
                 .withColumn("PersonID", ColumnType.INT()).asPrimaryKey()
-                .withColumn("FirstName", ColumnType.VAR_CHAR(255), ColumnProperty.NOT_NULL, ColumnProperty.UNIQUE)
+                .withColumn("FirstName", ColumnType.VAR_CHAR(255), ColumnProperty.NOT_NULL)
                 .withColumn("LastName", ColumnType.VAR_CHAR(255))
                 .withColumn("City", ColumnType.VAR_CHAR(255))
                 .withColumn("Address", ColumnType.VAR_CHAR(255))
