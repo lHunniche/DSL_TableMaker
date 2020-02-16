@@ -1,4 +1,4 @@
-package dk.klevang;
+package dk.klevang.tablegenerator;
 
 class Column
 {
