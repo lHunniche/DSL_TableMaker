@@ -1,15 +1,12 @@
 package dk.klevang;
 
-import dk.klevang.columnmodifiers.ColumnProperty;
-import dk.klevang.columnmodifiers.ColumnType;
-import dk.klevang.tablegenerator.Table;
-
 public class Main
 {
 
     public static void main(String[] args)
     {
-        String query = new Query().select("asd", "asd").from("table_name").where("age", ">", 5);
+
+
         
 
 
@@ -36,7 +33,7 @@ public class Main
 //
 //        //creates a table with only a Foreign key
 //        Table orderAmounts = new Table.Builder("OrderAmounts")
-//                .withColumn("Amount", ColumnType.FLOAT(10))
+//                .withColumn("Amount", ColumnType.FLO.AT(10))
 //                .withColumn("OrderID", ColumnType.INT()).asForeignKeyWith("Orders", "OrderID")
 //                .build();
 //
@@ -48,10 +45,5 @@ public class Main
 //                .build();
 //
 //        System.out.println(weirdTable.getCreateString() + "\n");
-    }
-
-    public static void printWords(String... strings)
-    {
-        System.out.println(strings[0]);
     }
 }

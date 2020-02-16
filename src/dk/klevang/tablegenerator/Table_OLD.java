@@ -2,16 +2,16 @@ package dk.klevang.tablegenerator;
 
 import java.util.ArrayList;
 
-public class Table
+public class Table_OLD
 {
     private String tableName;
-    private ArrayList<Column> columnList;
+    private ArrayList<Column_OLD> columnList;
     private String createString;
     private String primaryKey = null;
     private String foreignKey = null;
 
     // private constructor, so we only can use Builder
-    private Table()
+    private Table_OLD()
     {
     }
 
@@ -29,7 +29,7 @@ public class Table
         //run every column through, and add it to the creation String
         for (int index = 0; index < columnList.size() - 1; index++)
         {
-            Column currentColumn = columnList.get(index);
+            Column_OLD currentColumn = columnList.get(index);
 
             //elements from the column are taken out of the object. If a property, such as NOT NULL is selected, a space is added to the "columnType" String.
             String columnName = currentColumn.getName() + " ";
@@ -42,7 +42,7 @@ public class Table
 
         // if a primary key is set, the last column is inserted, and a placeholder "PRIMARY KEY($key)" is inserted, which is then replaced by the actual key.
         // is no primary key is set, the last column is inserted in the place of "$column"
-        Column lastColumn = columnList.get(columnList.size() - 1);
+        Column_OLD lastColumn = columnList.get(columnList.size() - 1);
         if (primaryKeyExists())
         {
             if (foreignKeyExists())
@@ -90,7 +90,7 @@ public class Table
     public static class Builder
     {
         private String tableName;
-        private ArrayList<Column> columnList;
+        private ArrayList<Column_OLD> columnList;
         private String primaryKey = null;
         private String foreignKey = null;
 
@@ -102,33 +102,33 @@ public class Table
 
         public Builder withColumn(String columnName, String columnType)
         {
-            columnList.add(new Column(columnName, columnType));
+            columnList.add(new Column_OLD(columnName, columnType));
             return this;
         }
 
         public Builder withColumn(String columnName, String columnType, String... columnProperty)
         {
-            columnList.add(new Column(columnName, columnType, columnProperty));
+            columnList.add(new Column_OLD(columnName, columnType, columnProperty));
             return this;
         }
 
         public Builder asPrimaryKey()
         {
-            Column lastInsertedColumn = columnList.get(columnList.size() - 1);
+            Column_OLD lastInsertedColumn = columnList.get(columnList.size() - 1);
             this.primaryKey = "PRIMARY KEY (" + lastInsertedColumn.getName() + ")";
             return this;
         }
 
         public Builder asForeignKeyWith(String refTable, String refColumn)
         {
-            Column lastInsertedColumn = columnList.get(columnList.size() - 1);
+            Column_OLD lastInsertedColumn = columnList.get(columnList.size() - 1);
             this.foreignKey = "FOREIGN KEY (" + lastInsertedColumn.getName() + ") REFERENCES " + refTable + "(" + refColumn + ")";
             return this;
         }
 
-        public Table build()
+        public Table_OLD build()
         {
-            Table table = new Table();
+            Table_OLD table = new Table_OLD();
             table.columnList = this.columnList;
             table.tableName = this.tableName;
             table.primaryKey = this.primaryKey;

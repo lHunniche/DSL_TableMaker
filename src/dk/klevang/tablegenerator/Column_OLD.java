@@ -1,19 +1,19 @@
 package dk.klevang.tablegenerator;
 
-class Column
+class Column_OLD
 {
     private String name;
     private String type;
     private String[] property;
 
-    Column(String name, String type)
+    Column_OLD(String name, String type)
     {
         this.name = name;
         this.type = type;
         this.property = null;
     }
 
-    Column(String name, String type, String[] property)
+    Column_OLD(String name, String type, String[] property)
     {
         this.name = name;
         this.type = type;

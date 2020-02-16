@@ -1,34 +1,116 @@
 package dk.klevang;
 
-public class Query implements ISelectBuilder, IFromBuilder, IWhereBuilder
+import dk.klevang.builders.IBuilder;
+import dk.klevang.builders.IFromBuilder;
+import dk.klevang.builders.ISelectBuilder;
+import dk.klevang.builders.IWhereBuilder;
+import dk.klevang.queryelements.From;
+import dk.klevang.queryelements.Select;
+import dk.klevang.queryelements.Where;
+
+public class Query
 {
     private String queryString;
+    private Select select;
+    private From from;
+    private Where where;
+
     public Query()
     {
-        queryString = "";
+
     }
 
-    @Override
-    public IFromBuilder select(String... coloums)
+    private void generateQueryString()
     {
-        return this;
+
     }
 
-    @Override
-    public String where(String columnValue, String operator, int value)
+    public ISelectBuilder init()
     {
-        return this.queryString;
+        return new Builder();
     }
 
-    @Override
-    public ISelectBuilder where(String columnValue, String operator, ISelectBuilder nestedSelect)
-    {
-        return this;
-    }
 
-    @Override
-    public IWhereBuilder from(String tableName)
+    private static class Builder implements ISelectBuilder, IFromBuilder, IWhereBuilder, IBuilder
     {
-        return null;
+        private Select select;
+        private From from;
+        private Where where;
+
+        private Builder()
+        {
+        }
+
+        @Override
+        public Query build()
+        {
+            //build query, clean up elements, and return query.
+            return null;
+        }
+
+        @Override
+        public ISelectBuilder inNestedQuery()
+        {
+            // appropriate clean up of selects/froms/wheres when nested query is initted.
+            return null;
+        }
+
+        @Override
+        public IFromBuilder select(Column... columns)
+        {
+            if (this.select == null)
+            {
+                this.select = new Select();
+            }
+
+            select.setColumns(columns);
+
+            return this;
+        }
+
+        @Override
+        public IWhereBuilder from(Table fromTable)
+        {
+            if (this.from == null)
+            {
+                this.from = new From();
+            }
+
+            this.from.setFromTable(fromTable);
+            this.select.setFrom(this.from);
+
+            return this;
+        }
+
+        @Override
+        public IBuilder where(String columnValue, String operator, int value)
+        {
+            if (this.where == null)
+            {
+                this.where = new Where();
+            }
+
+            this.where.setColumnValue(columnValue);
+            this.where.setOperator(operator);
+            this.where.setValue(value);
+            this.from.setWhere(this.where);
+
+            return this;
+        }
+
+        @Override
+        public IBuilder where(String columnValue, String operator)
+        {
+            if (this.where == null)
+            {
+                this.where = new Where();
+            }
+
+            this.where.setColumnValue(columnValue);
+            this.where.setOperator(operator);
+            this.from.setWhere(this.where);
+
+            return this;
+        }
     }
 }
