@@ -5,7 +5,13 @@ public class Main
 
     public static void main(String[] args)
     {
+//        Column name = new Column("name");
+//        Column age = new Column("age");
+//        Table customers = new Table(name, age);
 
+        Query query = new Query().init().select("name", "age").from("customers").where("credit", ">", 10).build();
+
+        //System.out.println(query.getQueryString());
 
         
 
