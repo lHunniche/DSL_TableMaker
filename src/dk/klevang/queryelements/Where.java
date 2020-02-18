@@ -5,6 +5,7 @@ public class Where
     private String columnValue;
     private String operator;
     private int value;
+    private String stringValue;
 
     private Select nestedSelect;
 
@@ -28,14 +29,19 @@ public class Where
         this.operator = operator;
     }
 
-    public int getValue()
-    {
-        return value;
-    }
-
     public void setValue(int value)
     {
         this.value = value;
+    }
+
+    public void setValue(String value)
+    {
+        this.stringValue = value;
+    }
+
+    public String getValue()
+    {
+        return (stringValue == null ? value + "" : stringValue);
     }
 
     public Select getNestedSelect()

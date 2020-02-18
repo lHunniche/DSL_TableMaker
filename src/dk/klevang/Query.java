@@ -20,13 +20,13 @@ public class Query
 
     }
 
-    private void generateQueryString()
+    private String generateQueryString(Select select)
     {
         StringBuilder stringBuilder = new StringBuilder();
 
         /* SELECT  */
         stringBuilder.append("SELECT ");
-        for (Column column : this.select.getColumns())
+        for (Column column : select.getColumns())
         {
             stringBuilder.append(column.getName());
             stringBuilder.append(", ");
@@ -44,9 +44,30 @@ public class Query
         stringBuilder.append("\n");
 
         /* FROM  */
+        From currentFrom = select.getFrom();
+        stringBuilder.append("FROM ");
+        stringBuilder.append(currentFrom.getFromTable().getName());
+        stringBuilder.append("\n");
 
         /* WHERE  */
+        Where currentWhere = currentFrom.getWhere();
+        stringBuilder.append("WHERE ");
+        stringBuilder.append(currentWhere.getColumnValue());
+        stringBuilder.append(" ").append(currentWhere.getOperator()).append(" ");
 
+        if (currentWhere.getNestedSelect() == null)
+        {
+            stringBuilder.append(currentWhere.getValue());
+        }
+        else
+        {
+            // make this work for nested queries
+            stringBuilder.append("(").append(this.generateQueryString(currentWhere.getNestedSelect())).append(")");
+        }
+
+
+        /* FINISHING  */
+        return stringBuilder.toString();
     }
 
     public String getQueryString()
@@ -54,7 +75,7 @@ public class Query
         return this.queryString;
     }
 
-    public ISelectBuilder init()
+    public ISelectBuilder begin()
     {
         return new Builder();
     }
@@ -69,6 +90,9 @@ public class Query
 
         private Builder()
         {
+            this.select = new Select();
+            this.from = new From();
+            this.where = new Where();
         }
 
         @Override
@@ -79,7 +103,7 @@ public class Query
             query.select = this.select;
             query.from = this.from;
             query.where = this.where;
-            query.generateQueryString();
+            query.queryString = query.generateQueryString(query.select);
 
             return query;
         }
@@ -87,7 +111,7 @@ public class Query
         @Override
         public ISelectBuilder inNestedQuery()
         {
-            // appropriate clean up of selects/froms/wheres when nested query is initted.
+            // appropriate clean up of selects/froms/wheres when nested query is inited.
             this.containsNestedQuery = true;
             this.select = null;
             this.from = null;
@@ -98,17 +122,13 @@ public class Query
         @Override
         public IFromBuilder select(Column... columns)
         {
-            if (this.select == null)
-            {
-                this.select = new Select();
-            }
 
             this.select.setColumns(columns);
             if (this.containsNestedQuery)
             {
                 this.where.setNestedSelect(this.select);
+                this.containsNestedQuery = false;
             }
-            this.containsNestedQuery = false;
 
             return this;
         }
@@ -116,17 +136,12 @@ public class Query
         @Override
         public IFromBuilder select(String... columns)
         {
-            if (this.select == null)
-            {
-                this.select = new Select();
-            }
-
             this.select.setColumns(createColumnsFromStringNames(columns));
             if (this.containsNestedQuery)
             {
                 this.where.setNestedSelect(this.select);
+                this.containsNestedQuery = false;
             }
-            this.containsNestedQuery = false;
 
             return this;
         }
@@ -148,11 +163,6 @@ public class Query
         @Override
         public IWhereBuilder from(String tableName)
         {
-            if (this.from == null)
-            {
-                this.from = new From();
-            }
-
             this.from.setFromTable(new Table(tableName));
             this.select.setFrom(this.from);
 
@@ -162,11 +172,6 @@ public class Query
         @Override
         public IBuilder where(String columnValue, String operator, int value)
         {
-            if (this.where == null)
-            {
-                this.where = new Where();
-            }
-
             this.where.setColumnValue(columnValue);
             this.where.setOperator(operator);
             this.where.setValue(value);
@@ -178,13 +183,19 @@ public class Query
         @Override
         public IBuilder where(String columnValue, String operator)
         {
-            if (this.where == null)
-            {
-                this.where = new Where();
-            }
-
             this.where.setColumnValue(columnValue);
             this.where.setOperator(operator);
+            this.from.setWhere(this.where);
+
+            return this;
+        }
+
+        @Override
+        public IBuilder where(String columnValue, String operator, String value)
+        {
+            this.where.setColumnValue(columnValue);
+            this.where.setOperator(operator);
+            this.where.setValue(value);
             this.from.setWhere(this.where);
 
             return this;
