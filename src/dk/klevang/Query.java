@@ -12,9 +12,6 @@ public class Query
 {
     private String queryString;
     private Select root;
-    private Select select;
-    private From from;
-    private Where where;
 
     public Query()
     {
@@ -27,7 +24,7 @@ public class Query
 
         /* SELECT  */
         stringBuilder.append("SELECT ");
-        
+
         for (Column column : select.getColumns())
         {
             stringBuilder.append(column.getName());
@@ -36,7 +33,7 @@ public class Query
 
         String checkPoint = stringBuilder.toString();
         checkPoint = checkPoint.trim();
-        if (checkPoint.charAt(checkPoint.length()-1) == ',')
+        if (checkPoint.charAt(checkPoint.length() - 1) == ',')
         {
             checkPoint = checkPoint.substring(0, checkPoint.length() - 1);
         }
@@ -85,6 +82,7 @@ public class Query
 
     private static class Builder implements ISelectBuilder, IFromBuilder, IWhereBuilder, IBuilder
     {
+        private Select root;
         private Select select;
         private From from;
         private Where where;
@@ -102,10 +100,9 @@ public class Query
         {
             //build query, clean up elements, and return query.
             Query query = new Query();
-            query.select = this.select;
-            query.from = this.from;
-            query.where = this.where;
-            query.queryString = query.generateQueryString(query.select);
+            this.root = (this.root == null ? this.select : this.root);
+            query.root = this.root;
+            query.queryString = query.generateQueryString(query.root);
 
             return query;
         }
@@ -115,6 +112,7 @@ public class Query
         {
             // appropriate clean up of selects/froms/wheres when nested query is inited.
             this.containsNestedQuery = true;
+            this.root = (this.root == null ? this.select : this.root);
             this.select = null;
             this.from = null;
 
@@ -132,7 +130,6 @@ public class Query
             this.select.setColumns(columns);
             if (this.containsNestedQuery)
             {
-
                 this.where.setNestedSelect(this.select);
                 this.where = null;
                 this.containsNestedQuery = false;
