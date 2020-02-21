@@ -1,6 +1,6 @@
 package dk.klevang.queryelements;
 
-public class Where
+public class Where extends QueryElement
 {
     private String columnValue;
     private String operator;
@@ -8,6 +8,11 @@ public class Where
     private String stringValue;
 
     private Select nestedSelect;
+
+    public Where(QueryElement child)
+    {
+        super(child);
+    }
 
     public String getColumnValue()
     {

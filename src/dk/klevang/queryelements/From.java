@@ -2,10 +2,15 @@ package dk.klevang.queryelements;
 
 import dk.klevang.Table;
 
-public class From
+public class From extends QueryElement
 {
     private Table fromTable;
     private Where where;
+
+    public From(QueryElement child)
+    {
+        super(child);
+    }
 
     public Table getFromTable()
     {

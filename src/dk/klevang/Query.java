@@ -5,15 +5,14 @@ import dk.klevang.builders.IFromBuilder;
 import dk.klevang.builders.ISelectBuilder;
 import dk.klevang.builders.IWhereBuilder;
 import dk.klevang.queryelements.From;
+import dk.klevang.queryelements.QueryElement;
 import dk.klevang.queryelements.Select;
 import dk.klevang.queryelements.Where;
 
 public class Query
 {
     private String queryString;
-    private Select select;
-    private From from;
-    private Where where;
+    private Select root;
 
     public Query()
     {
@@ -63,6 +62,7 @@ public class Query
         {
             // make this work for nested queries
             stringBuilder.append("(").append(this.generateQueryString(currentWhere.getNestedSelect())).append(")");
+            System.out.println("Recursive");
         }
 
 
@@ -83,16 +83,14 @@ public class Query
 
     private static class Builder implements ISelectBuilder, IFromBuilder, IWhereBuilder, IBuilder
     {
-        private Select select;
+        private Select root;
         private From from;
         private Where where;
+        private QueryElement currentElement;
         private boolean containsNestedQuery = false;
 
         private Builder()
         {
-            this.select = new Select();
-            this.from = new From();
-            this.where = new Where();
         }
 
         @Override
@@ -100,10 +98,7 @@ public class Query
         {
             //build query, clean up elements, and return query.
             Query query = new Query();
-            query.select = this.select;
-            query.from = this.from;
-            query.where = this.where;
-            query.queryString = query.generateQueryString(query.select);
+            query.queryString = query.generateQueryString(query.root);
 
             return query;
         }
@@ -113,21 +108,24 @@ public class Query
         {
             // appropriate clean up of selects/froms/wheres when nested query is inited.
             this.containsNestedQuery = true;
-            this.select = null;
-            this.from = null;
-
             return this;
         }
 
         @Override
         public IFromBuilder select(Column... columns)
         {
+            if (this.root == null)
+            {
+                this.root = new Select(null);
+                this.currentElement = this.root;
+            }
 
-            this.select.setColumns(columns);
+            this.currentElement.setColumns(columns);
             if (this.containsNestedQuery)
             {
                 this.where.setNestedSelect(this.select);
                 this.containsNestedQuery = false;
+                this.where = null;
             }
 
             return this;
@@ -136,11 +134,17 @@ public class Query
         @Override
         public IFromBuilder select(String... columns)
         {
+            if (this.select == null)
+            {
+                this.select = new Select();
+            }
+
             this.select.setColumns(createColumnsFromStringNames(columns));
             if (this.containsNestedQuery)
             {
                 this.where.setNestedSelect(this.select);
                 this.containsNestedQuery = false;
+                this.where = null;
             }
 
             return this;
@@ -163,6 +167,10 @@ public class Query
         @Override
         public IWhereBuilder from(String tableName)
         {
+            if (this.from == null)
+            {
+                this.from = new From();
+            }
             this.from.setFromTable(new Table(tableName));
             this.select.setFrom(this.from);
 
@@ -183,6 +191,10 @@ public class Query
         @Override
         public IBuilder where(String columnValue, String operator)
         {
+            if (this.where == null)
+            {
+                this.where = new Where();
+            }
             this.where.setColumnValue(columnValue);
             this.where.setOperator(operator);
             this.from.setWhere(this.where);
@@ -193,6 +205,10 @@ public class Query
         @Override
         public IBuilder where(String columnValue, String operator, String value)
         {
+            if (this.where == null)
+            {
+                this.where = new Where();
+            }
             this.where.setColumnValue(columnValue);
             this.where.setOperator(operator);
             this.where.setValue(value);

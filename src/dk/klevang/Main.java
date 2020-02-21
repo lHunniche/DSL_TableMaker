@@ -9,14 +9,15 @@ public class Main
 //        Column age = new Column("age");
 //        Table customers = new Table(name, age);
 
-        Query query = new Query().begin().select("name", "age").from("customers").where("credit", ">", 10).build();
+        //Query query = new Query().begin().select("name", "age").from("customers").where("credit", ">", 10).build();
 
-        System.out.println(query.getQueryString());
+        //System.out.println(query.getQueryString());
 
         Query nestedQuery = new Query().begin().select("name", "age").from("customers").where("credit", ">")
                 .inNestedQuery().select("credit").from("requirements").where("subject", "=" , "science").build();
 
         System.out.println(nestedQuery.getQueryString());
+
 
         
 
