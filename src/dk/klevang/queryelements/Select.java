@@ -1,6 +1,7 @@
 package dk.klevang.queryelements;
 
 import dk.klevang.Column;
+import dk.klevang.Query;
 
 public class Select
 {
@@ -26,4 +27,5 @@ public class Select
     {
         this.from = from;
     }
+
 }

@@ -54,5 +54,4 @@ public class Where
         this.nestedSelect = nestedSelect;
     }
 
-
 }

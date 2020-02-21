@@ -11,6 +11,7 @@ import dk.klevang.queryelements.Where;
 public class Query
 {
     private String queryString;
+    private Select root;
     private Select select;
     private From from;
     private Where where;
@@ -26,6 +27,7 @@ public class Query
 
         /* SELECT  */
         stringBuilder.append("SELECT ");
+        
         for (Column column : select.getColumns())
         {
             stringBuilder.append(column.getName());
@@ -122,11 +124,17 @@ public class Query
         @Override
         public IFromBuilder select(Column... columns)
         {
+            if (this.select == null)
+            {
+                this.select = new Select();
+            }
 
             this.select.setColumns(columns);
             if (this.containsNestedQuery)
             {
+
                 this.where.setNestedSelect(this.select);
+                this.where = null;
                 this.containsNestedQuery = false;
             }
 
@@ -136,10 +144,16 @@ public class Query
         @Override
         public IFromBuilder select(String... columns)
         {
+            if (this.select == null)
+            {
+                this.select = new Select();
+            }
+
             this.select.setColumns(createColumnsFromStringNames(columns));
             if (this.containsNestedQuery)
             {
                 this.where.setNestedSelect(this.select);
+                this.where = null;
                 this.containsNestedQuery = false;
             }
 
@@ -163,6 +177,11 @@ public class Query
         @Override
         public IWhereBuilder from(String tableName)
         {
+            if (this.from == null)
+            {
+                this.from = new From();
+            }
+
             this.from.setFromTable(new Table(tableName));
             this.select.setFrom(this.from);
 
@@ -172,6 +191,11 @@ public class Query
         @Override
         public IBuilder where(String columnValue, String operator, int value)
         {
+            if (this.where == null)
+            {
+                this.where = new Where();
+            }
+
             this.where.setColumnValue(columnValue);
             this.where.setOperator(operator);
             this.where.setValue(value);
@@ -183,6 +207,11 @@ public class Query
         @Override
         public IBuilder where(String columnValue, String operator)
         {
+            if (this.where == null)
+            {
+                this.where = new Where();
+            }
+
             this.where.setColumnValue(columnValue);
             this.where.setOperator(operator);
             this.from.setWhere(this.where);
@@ -193,6 +222,11 @@ public class Query
         @Override
         public IBuilder where(String columnValue, String operator, String value)
         {
+            if (this.where == null)
+            {
+                this.where = new Where();
+            }
+
             this.where.setColumnValue(columnValue);
             this.where.setOperator(operator);
             this.where.setValue(value);
