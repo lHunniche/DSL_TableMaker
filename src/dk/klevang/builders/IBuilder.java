@@ -5,5 +5,7 @@ import dk.klevang.Query;
 public interface IBuilder
 {
     Query build();
-    ISelectBuilder inNestedQuery();
+    ISelectBuilder enterNest();
+    IWhereBuilder as(String alias);
+    IWhereBuilder exitNest();
 }

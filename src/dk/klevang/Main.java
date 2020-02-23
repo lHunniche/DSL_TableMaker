@@ -5,20 +5,76 @@ public class Main
 
     public static void main(String[] args)
     {
-//        Column name = new Column("name");
-//        Column age = new Column("age");
-//        Table customers = new Table(name, age);
+        Query query = new Query().begin().
+                select("name", "age").
+                from("customers").
+                where("credit", ">", 10).
+                build();
 
-       // Query query = new Query().begin().select("name", "age").from("customers").where("credit", ">", 10).build();
+        System.out.println(query.getQueryString() + "\n\n");
 
-        //System.out.println(query.getQueryString());
 
-        Query nestedQuery = new Query().begin().select("name", "age").from("customers").where("credit", ">")
-                .inNestedQuery().select("credit").from("requirements").where("subject", "=" , "science").build();
+        Query nestedQuery = new Query().begin().
+                select("name", "age").
+                from("customers").
+                where("credit", ">")
+                    .enterNest().
+                        select("grade").
+                        from("requirements").
+                        where("subject", "=", "science").
+                        build();
 
-        System.out.println(nestedQuery.getQueryString());
+        System.out.println(nestedQuery.getQueryString() + "\n\n");
 
-        
+
+        Query doubleNestedQuery = new Query().begin().
+                select("name", "age").
+                from("students").
+                where("credit", ">")
+                .enterNest().
+                    select("grade").
+                    from("requirements").
+                    where("subject", "=")
+                    .enterNest().
+                        select("favourite_subject").
+                        from("students").
+                        where("name", "=", "nestedName").
+                        build();
+
+        System.out.println(doubleNestedQuery.getQueryString() + "\n\n");
+
+
+
+        Query nestedFrom = new Query().begin()
+                .select("name")
+                .from()
+                .enterNest()
+                    .select("MAX(price)", "ProductName")
+                    .from("products")
+                    .as("MyAlias")
+                .where("discount", ">", 10)
+                .build();
+
+        System.out.println(nestedFrom.getQueryString());
+
+
+        //TODO: when value is given in where statement, don't allow for any more nested queries.
+
+        //TODO: allow reference to higher up queries (alias, as).
+
+        //TODO: exit out of nested query
+
+        //TODO: select from (select from....)
+
+        //TODO: support more SQL versions (MySQL, SQL Server...)
+
+
+
+
+
+
+
+
 
 
 

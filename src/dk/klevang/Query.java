@@ -40,33 +40,44 @@ public class Query
 
         stringBuilder = new StringBuilder();
         stringBuilder.append(checkPoint);
-        stringBuilder.append("\n");
+        stringBuilder.append(" ");
 
         /* FROM  */
         From currentFrom = select.getFrom();
         stringBuilder.append("FROM ");
-        stringBuilder.append(currentFrom.getFromTable().getName());
-        stringBuilder.append("\n");
-
-        /* WHERE  */
-        Where currentWhere = currentFrom.getWhere();
-        stringBuilder.append("WHERE ");
-        stringBuilder.append(currentWhere.getColumnValue());
-        stringBuilder.append(" ").append(currentWhere.getOperator()).append(" ");
-
-        if (currentWhere.getNestedSelect() == null)
+        if (currentFrom.getFromTable() != null)
         {
-            stringBuilder.append(currentWhere.getValue());
+            stringBuilder.append(currentFrom.getFromTable().getName());
+            stringBuilder.append(" ");
         }
         else
         {
-            // make this work for nested queries
-            stringBuilder.append("(").append(this.generateQueryString(currentWhere.getNestedSelect())).append(")");
+            stringBuilder.append("\n\t(").append(this.generateQueryString(currentFrom.getSelect())).append(") as ").append(currentFrom.getAlias()).append("\n");
         }
 
 
+        /* WHERE  */
+        if (currentFrom.getWhere() != null)
+        {
+            Where currentWhere = currentFrom.getWhere();
+            stringBuilder.append("WHERE ");
+            stringBuilder.append(currentWhere.getColumnValue());
+            stringBuilder.append(" ").append(currentWhere.getOperator());
+            stringBuilder.append(" ");
+
+            if (currentWhere.getNestedSelect() == null)
+            {
+                stringBuilder.append(currentWhere.getValue());
+            }
+            else
+            {
+                // make this work for nested queries
+                stringBuilder.append("\n\t(").append(this.generateQueryString(currentWhere.getNestedSelect())).append(")");
+            }
+        }
+
         /* FINISHING  */
-        return stringBuilder.toString();
+        return stringBuilder.toString().trim();
     }
 
     public String getQueryString()
@@ -86,13 +97,11 @@ public class Query
         private Select select;
         private From from;
         private Where where;
-        private boolean containsNestedQuery = false;
+        private boolean containsNestedWhereQuery = false;
+        private boolean containsNestedFromQuery = false;
 
         private Builder()
         {
-            this.select = new Select();
-            this.from = new From();
-            this.where = new Where();
         }
 
         @Override
@@ -108,10 +117,18 @@ public class Query
         }
 
         @Override
-        public ISelectBuilder inNestedQuery()
+        public ISelectBuilder enterNest()
         {
             // appropriate clean up of selects/froms/wheres when nested query is inited.
-            this.containsNestedQuery = true;
+            if (this.from.getFromTable() == null)
+            {
+                this.containsNestedFromQuery = true;
+            }
+            else
+            {
+                this.containsNestedWhereQuery = true;
+            }
+
             this.root = (this.root == null ? this.select : this.root);
             this.select = null;
             this.from = null;
@@ -120,21 +137,17 @@ public class Query
         }
 
         @Override
-        public IFromBuilder select(Column... columns)
+        public IWhereBuilder as(String alias)
         {
-            if (this.select == null)
-            {
-                this.select = new Select();
-            }
+            this.from = root.getFrom();
+            this.from.setAlias(alias);
+            return this;
+        }
 
-            this.select.setColumns(columns);
-            if (this.containsNestedQuery)
-            {
-                this.where.setNestedSelect(this.select);
-                this.where = null;
-                this.containsNestedQuery = false;
-            }
-
+        @Override
+        public IWhereBuilder exitNest()
+        {
+            this.from = root.getFrom();
             return this;
         }
 
@@ -147,26 +160,17 @@ public class Query
             }
 
             this.select.setColumns(createColumnsFromStringNames(columns));
-            if (this.containsNestedQuery)
+            if (this.containsNestedWhereQuery)
             {
                 this.where.setNestedSelect(this.select);
                 this.where = null;
-                this.containsNestedQuery = false;
+                this.containsNestedWhereQuery = false;
             }
-
-            return this;
-        }
-
-        @Override
-        public IWhereBuilder from(Table fromTable)
-        {
-            if (this.from == null)
+            else if (this.containsNestedFromQuery)
             {
-                this.from = new From();
+                this.root.getFrom().setSelect(this.select);
+                this.containsNestedFromQuery = false;
             }
-
-            this.from.setFromTable(fromTable);
-            this.select.setFrom(this.from);
 
             return this;
         }
@@ -180,6 +184,19 @@ public class Query
             }
 
             this.from.setFromTable(new Table(tableName));
+            this.select.setFrom(this.from);
+
+            return this;
+        }
+
+        @Override
+        public IBuilder from()
+        {
+            // we come in here when the SELECT "name" FROM ... is followed by a nested select statement.
+            if (this.from == null)
+            {
+                this.from = new From();
+            }
             this.select.setFrom(this.from);
 
             return this;

@@ -6,6 +6,8 @@ public class From
 {
     private Table fromTable;
     private Where where;
+    private Select select;
+    private String alias;
 
     public Table getFromTable()
     {
@@ -27,4 +29,23 @@ public class From
         this.where = where;
     }
 
+    public Select getSelect()
+    {
+        return select;
+    }
+
+    public void setSelect(Select select)
+    {
+        this.select = select;
+    }
+
+    public String getAlias()
+    {
+        return alias;
+    }
+
+    public void setAlias(String alias)
+    {
+        this.alias = alias;
+    }
 }
